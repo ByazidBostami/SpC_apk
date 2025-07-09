@@ -10,17 +10,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
 
       - name: Set up JDK 11
         uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: 11
-
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
 
       - name: Download Android SDK
         run: |
@@ -36,10 +35,13 @@ jobs:
       - name: Build APK
         env:
           ANDROID_SDK_ROOT: ${{ runner.home }}/Android/Sdk
-        run: ./gradlew assembleDebug --stacktrace
+        run: ./gradlew assembleDebug
+
+      - name: List APK output directory
+        run: ls -R app/build/outputs/
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: TSI-Sports_C-debug.apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: app/build/outputs/**/*.apk
