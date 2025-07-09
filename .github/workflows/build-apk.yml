@@ -16,6 +16,11 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
+      - name: Show Gradle version and environment info
+        run: |
+          ./gradlew --version
+          env
+
       - name: Set up JDK 11
         uses: actions/setup-java@v3
         with:
@@ -33,16 +38,21 @@ jobs:
           mv $HOME/Android/Sdk/cmdline-tools/cmdline-tools/* $HOME/Android/Sdk/cmdline-tools/latest/
           yes | $HOME/Android/Sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/Android/Sdk "platform-tools" "platforms;android-33" "build-tools;33.0.0"
 
-      - name: Build APK
+      - name: Build APK (verbose)
         env:
           ANDROID_SDK_ROOT: ${{ runner.home }}/Android/Sdk
-        run: ./gradlew assembleDebug
+        run: ./gradlew assembleDebug --info
 
-      - name: List APK files
-        run: ls -R app/build/outputs/
+      - name: List all files in project root
+        run: ls -R
 
-      - name: Upload APK artifact
+      - name: List build output folders
+        run: |
+          ls -R app/build || echo "No app/build folder"
+          ls -R */build || echo "No other build folders"
+
+      - name: Upload APK artifact (all APKs)
         uses: actions/upload-artifact@v4
         with:
           name: TSI-Sports_C-debug.apk
-          path: app/build/outputs/**/*.apk
+          path: '**/*.apk'
